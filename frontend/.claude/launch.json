@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "icfscope-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "C:\\Dev\\ICFScope\\frontend",
+      "port": 5173,
+      "autoPort": true
+    }
+  ]
+}

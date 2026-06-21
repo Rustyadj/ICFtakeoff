@@ -1,0 +1,51 @@
+name: Deploy ICFScope
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend (Render)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Verify Render secrets
+        run: |
+          if [ -z "${{ secrets.RENDER_API_KEY }}" ]; then
+            echo "❌ Missing RENDER_API_KEY secret"
+            exit 1
+          fi
+          if [ -z "${{ secrets.RENDER_BACKEND_SERVICE_ID }}" ]; then
+            echo "❌ Missing RENDER_BACKEND_SERVICE_ID secret"
+            exit 1
+          fi
+
+      - name: Trigger Render Deploy
+        run: |
+          curl -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_BACKEND_SERVICE_ID }}/deploys" \
+          -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+          -H "Accept: application/json" \
+          -H "Content-Type: application/json"
+
+  deploy-frontend:
+    name: Deploy Frontend (Vercel)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Verify Vercel token
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "❌ Missing VERCEL_TOKEN secret"
+            exit 1
+          fi
+
+      - name: Deploy via Vercel CLI
+        run: |
+          npm install -g vercel
+          vercel --prod --yes --token=${{ secrets.VERCEL_TOKEN }} --cwd=frontend
+
